@@ -49,7 +49,6 @@ def start_screen():
     pygame.display.flip()
     waiting = True
     while waiting:
-        clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -60,9 +59,9 @@ def start_screen():
 def game_over_screen(score1, score2):
     end_text = "DRAW"
     if score1 > score2:
-        end_text = "PLAYER 1 WINS"
-    if score2 < score1:
         end_text = "PLAYER 2 WINS"
+    if score2 < score1:
+        end_text = "PLAYER 1 WINS"
 
     draw_text(WIN, "GAME OVER", 22,
               WIDTH / 2, HEIGHT / 2)
@@ -158,17 +157,22 @@ def main():
         while waiting:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    #running = False
+                    pygame.quit()
+                    sys.exit()
                 if event.type == pygame.KEYUP:
                     #user_click()
                     waiting = False
-        score1 += 1
         #See on tingimus, mis lõpetab mängu
         if score1 >= 5:
             game_over = True
 
         #See funktsioon uuendab pilti
         draw_window(score1, score2, turn)
+        if turn%2:
+            score1 += 1
+        else: 
+            score2 += 1
         turn += 1
     pygame.quit()
     sys.exit()
