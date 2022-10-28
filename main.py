@@ -3,7 +3,7 @@ import sys
 pygame.init()
 
 WIDTH, HEIGHT = 900,500
-FIELD_WIDTH, FIELD_HEIGHT = 400, 400
+FIELD_DIMENSION = 400
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Programmeerimise projekt")
 
@@ -31,10 +31,14 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
-def draw_window(score1, score2):
+def draw_window(score1, score2, turn):
     WIN.fill(BLACK)
     draw_text(WIN, f"PLAYER 1: {score1}", 18, 100, 200)
     draw_text(WIN, f"PLAYER 2: {score2}", 18, 100, 300)
+    if turn%2:
+        draw_text(WIN, "PLAYER 1 TURN", 18, 500, 300)
+    else: 
+        draw_text(WIN, "PLAYER 2 TURN", 18, 500, 300)
     pygame.display.update()
 
 def start_screen():
@@ -136,6 +140,7 @@ def main():
     running = True
     game_start = True
     game_over = False
+    turn = 1
     while running:
         clock.tick(FPS)
         if game_start:
@@ -148,23 +153,23 @@ def main():
             game_over = False
             score1 = 0
             score2 = 0 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                user_click()
- 
-                #Siin saaks teoorias ka mängu lõpetada ma ei tea kumb hetkel parem on
-                """ if(winner or draw):
-                    reset_game() """
-        score1 += 1
 
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYUP:
+                    #user_click()
+                    waiting = False
+        score1 += 1
         #See on tingimus, mis lõpetab mängu
-        if score1 >= 300:
+        if score1 >= 5:
             game_over = True
 
         #See funktsioon uuendab pilti
-        draw_window(score1, score2)
+        draw_window(score1, score2, turn)
+        turn += 1
     pygame.quit()
     sys.exit()
 
