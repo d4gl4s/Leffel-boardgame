@@ -2,7 +2,7 @@ import pygame
 import sys
 pygame.init()
 
-WIDTH, HEIGHT = 900,500
+WIDTH, HEIGHT = 1000,600
 FIELD_DIMENSION = 400
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Programmeerimise projekt")
@@ -11,9 +11,12 @@ pygame.display.set_caption("Programmeerimise projekt")
 square_red = pygame.image.load("assets/square_red.png")
 circle_red = pygame.image.load("assets/circle_red.png")
 triangle_red = pygame.image.load("assets/triangle_red.png")
-square_blue = pygame.image.load("assets/square_blue.png")
+square_blue = pygame.image.load("assets/square_blue.png").convert()
 circle_blue = pygame.image.load("assets/circle_blue.png")
 triangle_blue = pygame.image.load("assets/triangle_blue.png")
+square_gray = pygame.image.load("assets/square_gray.png")
+circle_gray = pygame.image.load("assets/circle_gray.png")
+triangle_gray = pygame.image.load("assets/triangle_gray.png")
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -24,21 +27,38 @@ FPS = 60
 clock = pygame.time.Clock()
 
 font_name = pygame.font.match_font('arial')
-def draw_text(surf, text, size, x, y):
+
+def shape(x,y,dimension,name):
+    #WIN.blit("square_"+color, (x,y))
+    image_resized = pygame.transform.scale(name, (dimension, dimension))
+    WIN.blit(image_resized, (x,y))
+
+def draw_text(surf, text, size, x, y, color):
     font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)
+    text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
+    text_rect.topleft = (x, y)
     surf.blit(text_surface, text_rect)
+    #pygame.draw.text(text,lefttop=(x,y), width=360, fontname="Boogaloo", fontsize=size,
+    #color=color)
 
 def draw_window(score1, score2, turn):
     WIN.fill(BLACK)
-    draw_text(WIN, f"PLAYER 1: {score1}", 18, 100, 200)
-    draw_text(WIN, f"PLAYER 2: {score2}", 18, 100, 300)
+    shape(50, 50,400,square_gray)
+
+    #nupud
+    draw_text(WIN,"Select a shape:", 20, 500, 150, WHITE )
+    shape(500, 200 ,40,square_blue)
+    shape(555, 200 ,40,circle_gray)
+    shape(610, 200 ,40,triangle_gray)
+    #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
+    #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
+    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, WHITE)
+    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, WHITE )
     if turn%2:
-        draw_text(WIN, "PLAYER 1 TURN", 18, 500, 300)
+        draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
     else: 
-        draw_text(WIN, "PLAYER 2 TURN", 18, 500, 300)
+        draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
     pygame.display.update()
 
 def start_screen():
@@ -137,21 +157,31 @@ def user_click():
 
 def main():
     running = True
-    game_start = True
+    #game_start = True
     game_over = False
     turn = 1
+    score1 = 0
+    score2 = 30
     while running:
         clock.tick(FPS)
-        if game_start:
+        """ if game_start:
             start_screen()
             game_start = False
             score1 = 0
-            score2 = 30
+            score2 = 30 """
         if game_over:
             game_over_screen(score1, score2)
             game_over = False
             score1 = 0
             score2 = 0 
+
+        #See funktsioon uuendab pilti
+        draw_window(score1, score2, turn)
+        if turn%2:
+            score1 += 1
+        else: 
+            score2 += 1
+        turn += 1
 
         waiting = True
         while waiting:
@@ -163,17 +193,19 @@ def main():
                 if event.type == pygame.KEYUP:
                     #user_click()
                     waiting = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Set the x, y postions of the mouse click
+                    x, y = event.pos
+                    # siin vaata iga shape'i kas click on sinna
+                    #if square_blue.get_rect().collidepoint(x, y):
+                        #print(x)
+
+                    #See hard-coding esimese nupu näiteks, mis kui mõelda ongi suht parim variant, lihtsalt pane lõppu or... ja kontrolli teist kahte nuppu ka
+                    if x >= 500 and x <=540 and y >= 200 and y <=240:
+                        print(x)
         #See on tingimus, mis lõpetab mängu
         if score1 >= 5:
             game_over = True
-
-        #See funktsioon uuendab pilti
-        draw_window(score1, score2, turn)
-        if turn%2:
-            score1 += 1
-        else: 
-            score2 += 1
-        turn += 1
     pygame.quit()
     sys.exit()
 
