@@ -1,9 +1,11 @@
 from pickle import GLOBAL
 import pygame
 import sys
+import math  
 pygame.init()
 
 WIDTH, HEIGHT = 1000,600
+#Mänguvälja dimensioonid
 FIELD_DIMENSION = 400
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Programmeerimise projekt")
@@ -29,6 +31,18 @@ clock = pygame.time.Clock()
 
 font_name = pygame.font.match_font('arial')
 
+#Katsetuseks, lisasin mänguväljale alguses juba mõned kujud
+field = [
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,square_red,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,triangle_red,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,circle_blue,0],
+    [0,0,0,0,0,0,0,0],
+]
+
 def shape(x,y,dimension,name):
     #WIN.blit("square_"+color, (x,y))
     image_resized = pygame.transform.scale(name, (dimension, dimension))
@@ -44,14 +58,30 @@ def draw_text(surf, text, size, x, y, color):
     #color=color)
 
 def draw_window(score1, score2, turn, selected):
+    global field
     WIN.fill(BLACK)
     shape(50, 50,400,square_gray)
 
-    #nupud
+    #joonistab mänguvälja
+    for row in range(8):
+        for col in range(8):
+            #Kui mänguvälja ruut pole tühi
+            if field[row][col] != 0:
+                #Leian selle ruudu koordinaadid ülemises vasakus nurgas
+                x = col*50 + 50
+                y = row*50 + 50
+                #Joonistan vastava kuju mänguväljale
+                shape(x,y,50,field[row][col])
+            else:
+                continue
+
+    #buttons
     draw_text(WIN,"Select a shape:", 20, 500, 150, WHITE )
     shape(500, 200 ,40,square_gray)
     shape(555, 200 ,40,circle_gray)
     shape(610, 200 ,40,triangle_gray)
+
+    #Joonistab valitud kuju
     if selected == square_blue or selected == square_red:
         shape(500, 200 ,40,selected)
     elif selected == circle_blue or selected == circle_red:
@@ -60,6 +90,8 @@ def draw_window(score1, score2, turn, selected):
         shape(610, 200 ,40,selected)
     #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
     #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
+
+    #Joonistab skoori ja selle, kumma kord on
     draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, WHITE)
     draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, WHITE )
     if turn%2:
@@ -68,6 +100,7 @@ def draw_window(score1, score2, turn, selected):
         draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
     pygame.display.update()
 
+#Hetkel pole kasutusel, kuid pilt, mida näitab mängu algul
 def start_screen():
     draw_text(WIN, "PROJEKT", 64, WIDTH / 2, HEIGHT / 4)
     draw_text(WIN, "Arrow keys move, Space to fire", 22,
@@ -83,6 +116,7 @@ def start_screen():
             if event.type == pygame.KEYUP:
                 waiting = False
 
+#Game over ekraan
 def game_over_screen(score1, score2):
     end_text = "DRAW"
     if score1 > score2:
@@ -106,7 +140,7 @@ def game_over_screen(score1, score2):
                 waiting = False
 
 def user_click(x,y):
-    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected
+    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field
 
     #See selectib vastava kuju ja annab sellele värvi, vaadates, kelle kord on hetkel
     if x >= 500 and x <=540 and y >= 200 and y <=240:
@@ -127,7 +161,19 @@ def user_click(x,y):
         else:
             selected = triangle_red
         print("kolmnurk")
+    
+    #Kui click on mänguväljad
     if x >= 50 and x <=450 and y >= 50 and y <=450:
+        #Siin määrad ära, mis row ja col ning muudad vastava väärtuse fieldi järjendis ära selleks surfaceiks
+        row = math.floor((y-50)/50)
+        col = math.floor((x-50)/50)
+        print(row)
+        print(col)
+
+        #Muudab mänguväljal vastava 0'i valitud kujuks
+        field[row][col] = selected
+
+        #Moodab mängijat ning paneb valitud kujuks jälle ruudu
         turn += 1
         if turn%2:
             selected = square_blue
@@ -167,18 +213,20 @@ def main():
         waiting = True
         while waiting:
             for event in pygame.event.get():
+                #Kui mängija paneb akna kinni
                 if event.type == pygame.QUIT:
                     running = False
                     waiting = False
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYUP:
-                    #user_click()
-                    waiting = False
+                
+                #Kui mängija teeb hiirel vajutuse
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    user_click(x,y)
-                    waiting = False
+                    #Kontrollib, kas vajutab vasakut hiireklahvi
+                    if event.button == 1:
+                        x, y = event.pos #Võtab kliki koordinaadid
+                        user_click(x,y)
+                        waiting = False
         #See on tingimus, mis lõpetab mängu
         """ if score1 >= 5:
             game_over = True """
