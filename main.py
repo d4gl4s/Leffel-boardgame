@@ -174,7 +174,11 @@ def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla
                 shape(x,y,50,field[row][col])
             else:
                 continue
+    #Joonistab skoori ja selle, kumma kord on
+    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
+    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
 
+    
     #buttons
     draw_text(WIN,"Select a shape:", 20, 500, 150, BLACK )
     shape(500, 200 ,40,square_gray)
@@ -189,9 +193,6 @@ def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla
     else:
         shape(610, 200 ,40,selected)
 
-    #Joonistab skoori ja selle, kumma kord on
-    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
-    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
     if turn%2:
         draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
     else: 
@@ -208,6 +209,7 @@ def game_over_screen(score1, score2):   #Pilt, mida näitatakse kui mäng lõppe
         end_text = "PLAYER 1 WINS"
         winner_color = BLUE
 
+    WIN.fill(WHITE)
     draw_text_center(WIN, "GAME OVER", 22, WIDTH / 2, HEIGHT / 2, BLACK)
     draw_text_center(WIN, end_text, 64, WIDTH / 2, HEIGHT / 4, winner_color)
     draw_text_center(WIN, "Press any key to start new game!", 18, WIDTH / 2, HEIGHT * 3 / 4, BLACK)
@@ -298,7 +300,7 @@ def main():
             game_over = False
 
         draw_window()    #funktsioon, mis uuendab pilti
-        if kujusid_mänguväljal >= 64:    #See on tingimus, mis lõpetab mängu
+        if kujusid_mänguväljal >= 2:    #See on tingimus, mis lõpetab mängu
             time.sleep(1.5)
             game_over = True
 
