@@ -20,6 +20,7 @@ triangle_blue = pygame.image.load("assets/triangle_blue.png")
 square_gray = pygame.image.load("assets/square_gray.png")
 circle_gray = pygame.image.load("assets/circle_gray.png")
 triangle_gray = pygame.image.load("assets/triangle_gray.png")
+väli = pygame.image.load("assets/väli.png")
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -35,13 +36,92 @@ font_name = pygame.font.match_font('arial')
 field = [
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,0,square_red,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,triangle_red,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,circle_blue,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
 ]
+
+def loogika_ring(row, col):
+    paremale = False
+    vasakule = False
+    alla = False
+    üles = False
+    paremale_indeks = col +1
+    vasakule_indeks = col -1
+    üles_indeks = row -1
+    alla_indeks = row +1
+    
+    while paremale_indeks <= 7 and paremale == False:
+        if field[row][paremale_indeks] == square_red or field[row][paremale_indeks] == square_blue:
+            paremale = True
+        else:
+            paremale_indeks +=1
+
+    while vasakule_indeks >= 0 and vasakule == False:
+        if field[row][vasakule_indeks] == square_red or field[row][vasakule_indeks] == square_blue:
+            vasakule = True
+        else:
+            vasakule_indeks -=1
+
+    while alla_indeks <= 7 and alla == False:
+        if field[alla_indeks][col] == square_red or field[alla_indeks][col] == square_blue:
+            alla = True
+        else:
+            alla_indeks +=1
+
+    while üles_indeks >= 0 and üles == False:
+        if field[üles_indeks][col] == square_red or field[üles_indeks][col] == square_blue:
+            üles = True
+        else:
+            üles_indeks -=1
+
+    if üles and alla or paremale and vasakule:
+        return True
+    else:
+        return False
+
+def loogika_kolmnurk(row, col):
+    paremale = False
+    vasakule = False
+    alla = False
+    üles = False
+    paremale_indeks = col +1
+    vasakule_indeks = col -1
+    üles_indeks = row -1
+    alla_indeks = row +1
+    
+    while paremale_indeks <= 7 and paremale == False:
+        if field[row][paremale_indeks] == circle_red or field[row][paremale_indeks] == circle_blue:
+            paremale = True
+        else:
+            paremale_indeks +=1
+
+    while vasakule_indeks >= 0 and vasakule == False:
+        if field[row][vasakule_indeks] == circle_red or field[row][vasakule_indeks] == circle_blue:
+            vasakule = True
+        else:
+            vasakule_indeks -=1
+
+    while alla_indeks <= 7 and alla == False:
+        if field[alla_indeks][col] == circle_red or field[alla_indeks][col] == circle_blue:
+            alla = True
+        else:
+            alla_indeks +=1
+
+    while üles_indeks >= 0 and üles == False:
+        if field[üles_indeks][col] == circle_red or field[üles_indeks][col] == circle_blue:
+            üles = True
+        else:
+            üles_indeks -=1
+
+    if üles and alla or paremale and vasakule:
+        return True
+    else:
+        return False
+
 
 def shape(x,y,dimension,name):
     #WIN.blit("square_"+color, (x,y))
@@ -59,8 +139,8 @@ def draw_text(surf, text, size, x, y, color):
 
 def draw_window(score1, score2, turn, selected):
     global field
-    WIN.fill(BLACK)
-    shape(50, 50,400,square_gray)
+    WIN.fill(WHITE)
+    shape(50, 50,400,väli)
 
     #joonistab mänguvälja
     for row in range(8):
@@ -76,7 +156,7 @@ def draw_window(score1, score2, turn, selected):
                 continue
 
     #buttons
-    draw_text(WIN,"Select a shape:", 20, 500, 150, WHITE )
+    draw_text(WIN,"Select a shape:", 20, 500, 150, BLACK )
     shape(500, 200 ,40,square_gray)
     shape(555, 200 ,40,circle_gray)
     shape(610, 200 ,40,triangle_gray)
@@ -92,8 +172,8 @@ def draw_window(score1, score2, turn, selected):
     #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
 
     #Joonistab skoori ja selle, kumma kord on
-    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, WHITE)
-    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, WHITE )
+    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
+    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
     if turn%2:
         draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
     else: 
@@ -140,7 +220,7 @@ def game_over_screen(score1, score2):
                 waiting = False
 
 def user_click(x,y):
-    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field
+    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2
 
     #See selectib vastava kuju ja annab sellele värvi, vaadates, kelle kord on hetkel
     if x >= 500 and x <=540 and y >= 200 and y <=240:
@@ -167,22 +247,43 @@ def user_click(x,y):
         #Siin määrad ära, mis row ja col ning muudad vastava väärtuse fieldi järjendis ära selleks surfaceiks
         row = math.floor((y-50)/50)
         col = math.floor((x-50)/50)
-        print(row)
-        print(col)
 
-        #Muudab mänguväljal vastava 0'i valitud kujuks
-        field[row][col] = selected
+        if field[row][col] == 0: #Vaatab, kas ruut mänuväljal on tühi
+            if selected == square_blue or selected == square_red:
+                field[row][col] = selected
+                if turn%2:
+                    score1 += 1
+                else:
+                    score2 += 1
+            elif selected == circle_blue or selected == circle_red:
+                if loogika_ring(row, col):
+                    field[row][col] = selected
+                    if turn%2:
+                        score1 += 2
+                    else:
+                        score2 += 2
+                else:
+                    return
+            elif selected == triangle_blue or selected == triangle_red:
+                if loogika_kolmnurk(row, col):
+                    field[row][col] = selected
+                    if turn%2:
+                        score1 += 3
+                    else:
+                        score2 += 3
+                else:
+                    return
 
-        #Moodab mängijat ning paneb valitud kujuks jälle ruudu
-        turn += 1
-        if turn%2:
-            selected = square_blue
-        else:
-            selected = square_red
-        print("turn canged")
+            #Moodab mängijat ning paneb valitud kujuks jälle ruudu
+            turn += 1
+            if turn%2:
+                selected = square_blue
+            else:
+                selected = square_red
+            print("turn canged")
 turn = 1
 score1 = 0
-score2 = 30
+score2 = 0
 selected = square_blue
 def main():
     global turn, selected, score1, score2
@@ -204,10 +305,10 @@ def main():
 
         #See funktsioon uuendab pilti
         draw_window(score1, score2, turn, selected)
-        if turn%2:
+        """ if turn%2:
             score1 += 1
         else: 
-            score2 += 1
+            score2 += 1 """
         #turn += 1
 
         waiting = True
