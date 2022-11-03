@@ -13,7 +13,7 @@ font_name = pygame.font.match_font('arial')
 FPS = 60
 clock = pygame.time.Clock()
 
-#Laen pildid ja salvestan nad muutujates
+#Laen pildid ja salvestan nad muutujatesse
 square_red = pygame.image.load("assets/square_red.png")
 circle_red = pygame.image.load("assets/circle_red.png")
 triangle_red = pygame.image.load("assets/triangle_red.png")
@@ -44,7 +44,8 @@ field = [
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
 ]
-def reset_game():
+
+def reset_game():   #Funktsioon, mis seab muutujad tagasi algsetele väärtustele
     global turn, score1, score2, kujusid_mänguväljal, selected, field
     turn = 1
     score1 = 0
@@ -62,7 +63,7 @@ def reset_game():
         [0,0,0,0,0,0,0,0],
     ]
 
-def loogika_ring(row, col):
+def loogika_ring(row, col):     #Funktsioon, mis paneb paika, kas ringi saab ette antud ruudule paigutada
     paremale = False
     vasakule = False
     alla = False
@@ -101,7 +102,7 @@ def loogika_ring(row, col):
     else:
         return False
 
-def loogika_kolmnurk(row, col):
+def loogika_kolmnurk(row, col):     #Funktsioon, mis paneb paika, kas kolmnurka saab ette antud ruudule paigutada
     paremale = False
     vasakule = False
     alla = False
@@ -140,25 +141,24 @@ def loogika_kolmnurk(row, col):
     else:
         return False
 
-
-def shape(x,y,dimension,name):
+def shape(x,y,dimension,name):  #Funktsioon, mis joonistab ekraanile kujundi
     image_resized = pygame.transform.scale(name, (dimension, dimension))    #Muudab laetava pildi suurust
     WIN.blit(image_resized, (x,y))  #Laeb pildi vastavatele koordinaatidele
-def draw_text(surf, text, size, x, y, color):
+def draw_text(surf, text, size, x, y, color):   #Funktsioon, mis joonistab ekraanile teksti
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
     text_rect.topleft = (x, y)
     surf.blit(text_surface, text_rect)
-def draw_text_center(surf, text, size, x, y, color):
+def draw_text_center(surf, text, size, x, y, color):    #Funktsioon, mis joonistab ekraanile teksti, joondusega keskele
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
-def draw_window(score1, score2, turn, selected):
-    global field
+def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla aja tagant (FPS korda sekundis)
+    global field, score1, score2, turn, selected
     WIN.fill(WHITE)
     shape(50, 50,400,väli)
 
@@ -198,24 +198,7 @@ def draw_window(score1, score2, turn, selected):
         draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
     pygame.display.update()
 
-#Hetkel pole kasutusel, kuid pilt, mida näitab mängu algul
-def start_screen():
-    draw_text(WIN, "PROJEKT", 64, WIDTH / 2, HEIGHT / 4)
-    draw_text(WIN, "Arrow keys move, Space to fire", 22,
-              WIDTH / 2, HEIGHT / 2)
-    draw_text(WIN, "Press a key to begin", 18, WIDTH / 2, HEIGHT * 3 / 4)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYUP:
-                waiting = False
-
-#Game over ekraan
-def game_over_screen(score1, score2):
+def game_over_screen(score1, score2):   #Pilt, mida näitatakse kui mäng lõppeb
     end_text = "DRAW"
     winner_color = BLACK
     if score1 > score2:
@@ -229,7 +212,6 @@ def game_over_screen(score1, score2):
     draw_text_center(WIN, end_text, 64, WIDTH / 2, HEIGHT / 4, winner_color)
     draw_text_center(WIN, "Press any key to start new game!", 18, WIDTH / 2, HEIGHT * 3 / 4, BLACK)
     pygame.display.flip()
-    reset_game()
     waiting = True
     while waiting:
         clock.tick(FPS)
@@ -240,7 +222,7 @@ def game_over_screen(score1, score2):
             if event.type == pygame.KEYUP:
                 waiting = False
 
-def user_click(x,y):
+def user_click(x,y):    #Funktsioon kutsutakse,kui mängija vajutab ekraanile
     global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2, kujusid_mänguväljal
 
     #See selectib vastava kuju ja annab sellele värvi, vaadates, kelle kord on hetkel
@@ -307,44 +289,30 @@ def user_click(x,y):
 def main():
     global turn, selected, score1, score2, kujusid_mänguväljal
     running = True
-    #game_start = True
     game_over = False
     while running:
         clock.tick(FPS)
-        """ if game_start:
-            start_screen()
-            game_start = False
-            score1 = 0
-            score2 = 30 """
         if game_over:
             game_over_screen(score1, score2)
+            reset_game()    #Seab muutujad tagasi mängualgsetele väärtustele
             game_over = False
-            score1 = 0
-            score2 = 0 
 
-        #See funktsioon uuendab pilti
-        draw_window(score1, score2, turn, selected)
-        #See on tingimus, mis lõpetab mängu
-        #64 õige
-        if kujusid_mänguväljal >= 2:
+        draw_window()    #funktsioon, mis uuendab pilti
+        if kujusid_mänguväljal >= 64:    #See on tingimus, mis lõpetab mängu
             time.sleep(1.5)
             game_over = True
 
         waiting = True
-        while waiting:
+        while waiting:  #Ootab mängija sisendit
             for event in pygame.event.get():
-                #Kui mängija paneb akna kinni
-                if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:   #Kui mängija paneb akna kinni
                     running = False
                     waiting = False
                     pygame.quit()
                     sys.exit()
-                
-                #Kui mängija teeb hiirel vajutuse
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    #Kontrollib, kas vajutab vasakut hiireklahvi
-                    if event.button == 1:
-                        x, y = event.pos #Võtab kliki koordinaadid
+                elif event.type == pygame.MOUSEBUTTONDOWN:    #Kui mängija teeb hiirel vajutuse
+                    if event.button == 1:   #Kontrollib, kas vajutab vasakut hiireklahvi
+                        x, y = event.pos    #Võtab kliki koordinaadid
                         user_click(x,y)
                         waiting = False
     pygame.quit()
