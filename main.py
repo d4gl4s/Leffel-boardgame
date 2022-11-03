@@ -1,14 +1,17 @@
 from pickle import GLOBAL
 import pygame
 import sys
-import math  
+import math
+import time  
 pygame.init()
 
-WIDTH, HEIGHT = 1000,600
-#Mänguvälja dimensioonid
-FIELD_DIMENSION = 400
+WIDTH, HEIGHT = 1000,600     #Akna suurus
+FIELD_DIMENSION = 400    #Mänguvälja suurus
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Programmeerimise projekt")
+font_name = pygame.font.match_font('arial')
+FPS = 60
+clock = pygame.time.Clock()
 
 #Laen pildid ja salvestan nad muutujates
 square_red = pygame.image.load("assets/square_red.png")
@@ -26,13 +29,11 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0,0,0)
 BLUE = (0, 0, 255)
-
-FPS = 60
-clock = pygame.time.Clock()
-
-font_name = pygame.font.match_font('arial')
-
-#Katsetuseks, lisasin mänguväljale alguses juba mõned kujud
+turn = 1
+score1 = 0
+score2 = 0
+kujusid_mänguväljal = 0
+selected = square_blue
 field = [
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
@@ -43,6 +44,23 @@ field = [
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
 ]
+def reset_game():
+    global turn, score1, score2, kujusid_mänguväljal, selected, field
+    turn = 1
+    score1 = 0
+    score2 = 0
+    kujusid_mänguväljal = 0
+    selected = square_blue
+    field = [
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+    ]
 
 def loogika_ring(row, col):
     paremale = False
@@ -124,18 +142,20 @@ def loogika_kolmnurk(row, col):
 
 
 def shape(x,y,dimension,name):
-    #WIN.blit("square_"+color, (x,y))
-    image_resized = pygame.transform.scale(name, (dimension, dimension))
-    WIN.blit(image_resized, (x,y))
-
+    image_resized = pygame.transform.scale(name, (dimension, dimension))    #Muudab laetava pildi suurust
+    WIN.blit(image_resized, (x,y))  #Laeb pildi vastavatele koordinaatidele
 def draw_text(surf, text, size, x, y, color):
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
     text_rect.topleft = (x, y)
     surf.blit(text_surface, text_rect)
-    #pygame.draw.text(text,lefttop=(x,y), width=360, fontname="Boogaloo", fontsize=size,
-    #color=color)
+def draw_text_center(surf, text, size, x, y, color):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
 
 def draw_window(score1, score2, turn, selected):
     global field
@@ -168,8 +188,6 @@ def draw_window(score1, score2, turn, selected):
         shape(555, 200 ,40,selected)
     else:
         shape(610, 200 ,40,selected)
-    #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
-    #square(WIDTH * 0.45, HEIGHT * 0.8,40,square_blue)
 
     #Joonistab skoori ja selle, kumma kord on
     draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
@@ -199,16 +217,19 @@ def start_screen():
 #Game over ekraan
 def game_over_screen(score1, score2):
     end_text = "DRAW"
+    winner_color = BLACK
     if score1 > score2:
         end_text = "PLAYER 2 WINS"
+        winner_color = RED
     if score2 < score1:
         end_text = "PLAYER 1 WINS"
+        winner_color = BLUE
 
-    draw_text(WIN, "GAME OVER", 22,
-              WIDTH / 2, HEIGHT / 2)
-    draw_text(WIN, end_text, 64, WIDTH / 2, HEIGHT / 4)
-    draw_text(WIN, "Press any key to start new game!", 18, WIDTH / 2, HEIGHT * 3 / 4)
+    draw_text_center(WIN, "GAME OVER", 22, WIDTH / 2, HEIGHT / 2, BLACK)
+    draw_text_center(WIN, end_text, 64, WIDTH / 2, HEIGHT / 4, winner_color)
+    draw_text_center(WIN, "Press any key to start new game!", 18, WIDTH / 2, HEIGHT * 3 / 4, BLACK)
     pygame.display.flip()
+    reset_game()
     waiting = True
     while waiting:
         clock.tick(FPS)
@@ -220,7 +241,7 @@ def game_over_screen(score1, score2):
                 waiting = False
 
 def user_click(x,y):
-    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2
+    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2, kujusid_mänguväljal
 
     #See selectib vastava kuju ja annab sellele värvi, vaadates, kelle kord on hetkel
     if x >= 500 and x <=540 and y >= 200 and y <=240:
@@ -276,17 +297,15 @@ def user_click(x,y):
 
             #Moodab mängijat ning paneb valitud kujuks jälle ruudu
             turn += 1
+            kujusid_mänguväljal += 1
             if turn%2:
                 selected = square_blue
             else:
                 selected = square_red
             print("turn canged")
-turn = 1
-score1 = 0
-score2 = 0
-selected = square_blue
+
 def main():
-    global turn, selected, score1, score2
+    global turn, selected, score1, score2, kujusid_mänguväljal
     running = True
     #game_start = True
     game_over = False
@@ -305,11 +324,11 @@ def main():
 
         #See funktsioon uuendab pilti
         draw_window(score1, score2, turn, selected)
-        """ if turn%2:
-            score1 += 1
-        else: 
-            score2 += 1 """
-        #turn += 1
+        #See on tingimus, mis lõpetab mängu
+        #64 õige
+        if kujusid_mänguväljal >= 2:
+            time.sleep(1.5)
+            game_over = True
 
         waiting = True
         while waiting:
@@ -328,9 +347,6 @@ def main():
                         x, y = event.pos #Võtab kliki koordinaadid
                         user_click(x,y)
                         waiting = False
-        #See on tingimus, mis lõpetab mängu
-        """ if score1 >= 5:
-            game_over = True """
     pygame.quit()
     sys.exit()
 
