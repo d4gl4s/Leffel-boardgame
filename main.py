@@ -23,6 +23,8 @@ triangle_blue = pygame.image.load("assets/triangle_blue.png")
 square_gray = pygame.image.load("assets/square_gray.png")
 circle_gray = pygame.image.load("assets/circle_gray.png")
 triangle_gray = pygame.image.load("assets/triangle_gray.png")
+
+rules_background = pygame.image.load("assets/rules_background.png")
 väli = pygame.image.load("assets/väli.png")
 
 WHITE = (255, 255, 255)
@@ -32,6 +34,7 @@ BLUE = (0, 0, 255)
 turn = 1
 score1 = 0
 score2 = 0
+rulesOpen = False
 kujusid_mänguväljal = 0
 selected = square_blue
 field = [
@@ -50,6 +53,7 @@ def reset_game():   #Funktsioon, mis seab muutujad tagasi algsetele väärtustel
     turn = 1
     score1 = 0
     score2 = 0
+    rulesOpen = False
     kujusid_mänguväljal = 0
     selected = square_blue
     field = [
@@ -141,8 +145,8 @@ def loogika_kolmnurk(row, col):     #Funktsioon, mis paneb paika, kas kolmnurka 
     else:
         return False
 
-def shape(x,y,dimension,name):  #Funktsioon, mis joonistab ekraanile kujundi
-    image_resized = pygame.transform.scale(name, (dimension, dimension))    #Muudab laetava pildi suurust
+def shape(x,y,dimension_x, dimension_y,name):  #Funktsioon, mis joonistab ekraanile kujundi
+    image_resized = pygame.transform.scale(name, (dimension_y, dimension_x))    #Muudab laetava pildi suurust
     WIN.blit(image_resized, (x,y))  #Laeb pildi vastavatele koordinaatidele
 def draw_text(surf, text, size, x, y, color):   #Funktsioon, mis joonistab ekraanile teksti
     font = pygame.font.Font(font_name, size)
@@ -158,45 +162,57 @@ def draw_text_center(surf, text, size, x, y, color):    #Funktsioon, mis joonist
     surf.blit(text_surface, text_rect)
 
 def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla aja tagant (FPS korda sekundis)
-    global field, score1, score2, turn, selected
+    global field, score1, score2, turn, selected, rulesOpen
     WIN.fill(WHITE)
-    shape(50, 50,400,väli)
 
-    #joonistab mänguvälja
-    for row in range(8):
-        for col in range(8):
-            #Kui mänguvälja ruut pole tühi
-            if field[row][col] != 0:
-                #Leian selle ruudu koordinaadid ülemises vasakus nurgas
-                x = col*50 + 50
-                y = row*50 + 50
-                #Joonistan vastava kuju mänguväljale
-                shape(x,y,50,field[row][col])
-            else:
-                continue
-    #Joonistab skoori ja selle, kumma kord on
-    draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
-    draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
-
-    
-    #buttons
-    draw_text(WIN,"Select a shape:", 20, 500, 150, BLACK )
-    shape(500, 200 ,40,square_gray)
-    shape(555, 200 ,40,circle_gray)
-    shape(610, 200 ,40,triangle_gray)
-
-    #Joonistab valitud kuju
-    if selected == square_blue or selected == square_red:
-        shape(500, 200 ,40,selected)
-    elif selected == circle_blue or selected == circle_red:
-        shape(555, 200 ,40,selected)
+    if rulesOpen:
+        draw_text(WIN,"Reeglid:", 20, 200, 120, BLACK)
+        draw_text(WIN,"Siia tuleb tekst:", 20, 200, 170, BLACK)
+        draw_text(WIN,"Siia ka:", 20, 200, 200, BLACK)
+        draw_text(WIN,"Siia ka:", 20, 200, 230, BLACK)
+        shape(850, 500 ,50, 100,rules_background)
+        draw_text_center(WIN,"close", 20, 900, 513, BLACK )
     else:
-        shape(610, 200 ,40,selected)
+        shape(50, 50,400,400,väli)
+        #joonistab mänguvälja
+        for row in range(8):
+            for col in range(8):
+                #Kui mänguvälja ruut pole tühi
+                if field[row][col] != 0:
+                    #Leian selle ruudu koordinaadid ülemises vasakus nurgas
+                    x = col*50 + 50
+                    y = row*50 + 50
+                    #Joonistan vastava kuju mänguväljale
+                    shape(x,y,50,50,field[row][col])
+                else:
+                    continue
+        #Joonistab skoori ja selle, kumma kord on
+        draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
+        draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
 
-    if turn%2:
-        draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
-    else: 
-        draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
+        
+        #buttons
+        draw_text(WIN,"Select a shape:", 20, 500, 150, BLACK )
+        shape(500, 200 ,40, 40,square_gray)
+        shape(555, 200 ,40, 40,circle_gray)
+        shape(610, 200 ,40, 40,triangle_gray)
+
+
+        shape(850, 500 ,50, 100,rules_background)
+        draw_text_center(WIN,"rules", 20, 900, 513, BLACK )
+
+        #Joonistab valitud kuju
+        if selected == square_blue or selected == square_red:
+            shape(500, 200 ,40, 40,selected)
+        elif selected == circle_blue or selected == circle_red:
+            shape(555, 200 ,40, 40,selected)
+        else:
+            shape(610, 200 ,40, 40,selected)
+
+        if turn%2:
+            draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
+        else: 
+            draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
     pygame.display.update()
 
 def game_over_screen(score1, score2):   #Pilt, mida näitatakse kui mäng lõppeb
@@ -225,7 +241,14 @@ def game_over_screen(score1, score2):   #Pilt, mida näitatakse kui mäng lõppe
                 waiting = False
 
 def user_click(x,y):    #Funktsioon kutsutakse,kui mängija vajutab ekraanile
-    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2, kujusid_mänguväljal
+    global FIELD_WIDTH, FIELD_HEIGHT, turn, selected, field, score1, score2, kujusid_mänguväljal, rulesOpen
+
+    if rulesOpen:
+        if x >= 850 and x <=950 and y >= 500 and y <=550: 
+            rulesOpen = False
+    else:
+        if x >= 850 and x <=950 and y >= 500 and y <=550: 
+            rulesOpen = True
 
     #See selectib vastava kuju ja annab sellele värvi, vaadates, kelle kord on hetkel
     if x >= 500 and x <=540 and y >= 200 and y <=240:
@@ -233,19 +256,16 @@ def user_click(x,y):    #Funktsioon kutsutakse,kui mängija vajutab ekraanile
             selected = square_blue
         else:
             selected = square_red
-        print("ruut")
     elif x >= 555 and x <=595 and y >= 200 and y <=240:
         if turn%2:
             selected = circle_blue
         else:
             selected = circle_red
-        print("ring")
     elif x >= 610 and x <=650 and y >= 200 and y <=240:
         if turn%2:
             selected = triangle_blue
         else:
             selected = triangle_red
-        print("kolmnurk")
     
     #Kui click on mänguväljad
     if x >= 50 and x <=450 and y >= 50 and y <=450:
@@ -286,8 +306,6 @@ def user_click(x,y):    #Funktsioon kutsutakse,kui mängija vajutab ekraanile
                 selected = square_blue
             else:
                 selected = square_red
-            print("turn canged")
-
 def main():
     global turn, selected, score1, score2, kujusid_mänguväljal
     running = True
@@ -300,7 +318,7 @@ def main():
             game_over = False
 
         draw_window()    #funktsioon, mis uuendab pilti
-        if kujusid_mänguväljal >= 2:    #See on tingimus, mis lõpetab mängu
+        if kujusid_mänguväljal >= 64:    #See on tingimus, mis lõpetab mängu
             time.sleep(1.5)
             game_over = True
 
