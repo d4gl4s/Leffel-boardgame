@@ -9,7 +9,7 @@ WIDTH, HEIGHT = 1000,600     #Akna suurus
 FIELD_DIMENSION = 400    #Mänguvälja suurus
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Programmeerimise projekt")
-font_name = pygame.font.match_font('arial')
+font_name = pygame.font.match_font('Trebuchet MS')
 FPS = 60
 clock = pygame.time.Clock()
 
