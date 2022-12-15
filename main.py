@@ -8,7 +8,7 @@ pygame.init()
 WIDTH, HEIGHT = 1000,600     #Akna suurus
 FIELD_DIMENSION = 400    #Mänguvälja suurus
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Programmeerimise projekt")
+pygame.display.set_caption("LEFFEL")
 font_name = pygame.font.match_font('Trebuchet MS')
 FPS = 60
 clock = pygame.time.Clock()
@@ -89,6 +89,9 @@ def loogika_ring(row, col):     #Funktsioon, mis paneb paika, kas ringi saab ett
         else:
             vasakule_indeks -=1
 
+    if paremale and vasakule:
+        return True
+
     while alla_indeks <= 7 and alla == False:
         if field[alla_indeks][col] == square_red or field[alla_indeks][col] == square_blue:
             alla = True
@@ -101,7 +104,7 @@ def loogika_ring(row, col):     #Funktsioon, mis paneb paika, kas ringi saab ett
         else:
             üles_indeks -=1
 
-    if üles and alla or paremale and vasakule:
+    if üles and alla:
         return True
     else:
         return False
@@ -128,6 +131,9 @@ def loogika_kolmnurk(row, col):     #Funktsioon, mis paneb paika, kas kolmnurka 
         else:
             vasakule_indeks -=1
 
+    if paremale and vasakule:
+        return True
+
     while alla_indeks <= 7 and alla == False:
         if field[alla_indeks][col] == circle_red or field[alla_indeks][col] == circle_blue:
             alla = True
@@ -140,7 +146,7 @@ def loogika_kolmnurk(row, col):     #Funktsioon, mis paneb paika, kas kolmnurka 
         else:
             üles_indeks -=1
 
-    if üles and alla or paremale and vasakule:
+    if üles and alla:
         return True
     else:
         return False
@@ -165,16 +171,21 @@ def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla
     global field, score1, score2, turn, selected, rulesOpen
     WIN.fill(WHITE)
 
+    #Kui kasutaja on reeglid avanud, kuvab need, kui mitte näitab tavalist pilti
     if rulesOpen:
-        draw_text(WIN,"Reeglid:", 20, 200, 120, BLACK)
-        draw_text(WIN,"Siia tuleb tekst:", 20, 200, 170, BLACK)
-        draw_text(WIN,"Siia ka:", 20, 200, 200, BLACK)
-        draw_text(WIN,"Siia ka:", 20, 200, 230, BLACK)
+        draw_text(WIN,"Rules:", 20, 200, 120, BLACK)
+        draw_text(WIN,"1. Players take turns placing shapes on the board", 20, 200, 170, BLACK)
+        draw_text(WIN,"2. A square can be placed anywhere on the board", 20, 200, 200, BLACK)
+        draw_text(WIN,"3. A circle can only be placed between two squares", 20, 200, 230, BLACK)
+        draw_text(WIN,"4. A triangle can only be placed between two circles", 20, 200, 260, BLACK)
+        draw_text(WIN,"5. You can place your shapes between the other players shapes", 20, 200, 290, BLACK)
+        draw_text(WIN,"6. The game ends when the board is full", 20, 200, 320, BLACK)
+        draw_text(WIN,"6. The player who has more points at the end is the winner", 20, 200, 350, BLACK)
         shape(850, 500 ,50, 100,rules_background)
         draw_text_center(WIN,"close", 20, 900, 513, BLACK )
     else:
         shape(50, 50,400,400,väli)
-        #joonistab mänguvälja
+        #joonistab mänguväljale kujundid
         for row in range(8):
             for col in range(8):
                 #Kui mänguvälja ruut pole tühi
@@ -189,14 +200,12 @@ def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla
         #Joonistab skoori ja selle, kumma kord on
         draw_text(WIN,f"Player 1:   {score1}", 18, 50, 500, BLACK)
         draw_text(WIN,f"Player 2:   {score2}", 18, 200, 500, BLACK )
-
-        
-        #buttons
+  
+        #Nupud
         draw_text(WIN,"Select a shape:", 20, 500, 150, BLACK )
         shape(500, 200 ,40, 40,square_gray)
         shape(555, 200 ,40, 40,circle_gray)
         shape(610, 200 ,40, 40,triangle_gray)
-
 
         shape(850, 500 ,50, 100,rules_background)
         draw_text_center(WIN,"rules", 20, 900, 513, BLACK )
@@ -209,19 +218,27 @@ def draw_window():  #Funktsioon, mis uuendab mängu pilti. Kutsutakse iga kindla
         else:
             shape(610, 200 ,40, 40,selected)
 
-        if turn%2:
-            draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
-        else: 
-            draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
+        #Muudab teksti vastavalt sellele, kas mäng on läbi või mitte
+        if kujusid_mänguväljal >= 64: 
+            if score1 > score2:
+                draw_text(WIN, "PLAYER 1 WINS", 25, 500, 50, BLUE)
+            elif score1 < score2:
+                draw_text(WIN, "PLAYER 2 WINS", 25, 500, 50, BLUE)
+            else: draw_text(WIN, "DRAW", 25, 500, 50, BLACK)
+        else:
+            if turn%2:
+                draw_text(WIN, "PLAYER 1 TURN", 25, 500, 50, BLUE)
+            else: 
+                draw_text(WIN, "PLAYER 2 TURN", 25, 500, 50, RED)
     pygame.display.update()
 
 def game_over_screen(score1, score2):   #Pilt, mida näitatakse kui mäng lõppeb
     end_text = "DRAW"
     winner_color = BLACK
-    if score1 > score2:
+    if score1 < score2:
         end_text = "PLAYER 2 WINS"
         winner_color = RED
-    if score2 < score1:
+    if score1 > score2:
         end_text = "PLAYER 1 WINS"
         winner_color = BLUE
 
@@ -306,6 +323,7 @@ def user_click(x,y):    #Funktsioon kutsutakse,kui mängija vajutab ekraanile
                 selected = square_blue
             else:
                 selected = square_red
+
 def main():
     global turn, selected, score1, score2, kujusid_mänguväljal
     running = True
@@ -319,22 +337,22 @@ def main():
 
         draw_window()    #funktsioon, mis uuendab pilti
         if kujusid_mänguväljal >= 64:    #See on tingimus, mis lõpetab mängu
-            time.sleep(1.5)
+            time.sleep(3)
             game_over = True
-
-        waiting = True
-        while waiting:  #Ootab mängija sisendit
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:   #Kui mängija paneb akna kinni
-                    running = False
-                    waiting = False
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:    #Kui mängija teeb hiirel vajutuse
-                    if event.button == 1:   #Kontrollib, kas vajutab vasakut hiireklahvi
-                        x, y = event.pos    #Võtab kliki koordinaadid
-                        user_click(x,y)
+        else:
+            waiting = True
+            while waiting:  #Ootab mängija sisendit
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:   #Kui mängija paneb akna kinni
+                        running = False
                         waiting = False
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:    #Kui mängija teeb hiirel vajutuse
+                        if event.button == 1:   #Kontrollib, kas vajutab vasakut hiireklahvi
+                            x, y = event.pos    #Võtab kliki koordinaadid
+                            user_click(x,y)
+                            waiting = False
     pygame.quit()
     sys.exit()
 
