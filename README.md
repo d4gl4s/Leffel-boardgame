@@ -37,5 +37,5 @@ Find out more about the project by visiting: <a>https://www.daglasaitsen.com/lef
     python ./main.py
     ```
 <br></br>
-## Visual
+## Preview
 ![image](https://github.com/d4gl4s/Leffel-boardgame/assets/91371101/382670c2-ceae-469e-9335-db6b3d45395e)
