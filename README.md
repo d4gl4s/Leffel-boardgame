@@ -8,13 +8,13 @@ Find out more about the project by visiting: <a>https://www.daglasaitsen.com/lef
 
 ## Rules
 
-1. Players take turns placing shapes on the board.
-2. A square can be placed anywhere on the board.
-3. A circle can only be placed between two squares.
-4. A triangle can only be placed between two circles.
-5. You can place your shapes between the other player's shapes.
-6. The game ends when the board is full.
-7. The player with more points at the end is the winner.
+* Players take turns placing shapes on the board.
+* A square can be placed anywhere on the board.
+* A circle can only be placed between two squares.
+* A triangle can only be placed between two circles.
+* You can place your shapes between the other player's shapes.
+* The game ends when the board is full.
+* The player with more points at the end is the winner.
 <br></br>
 
 ## Installation
